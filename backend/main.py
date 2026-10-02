@@ -3,8 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
+import uuid
 
-app = FastAPI(title="Solana Trading Bot API")
+app = FastAPI(title="Solona Trading Bot API")
 
 app.add_middleware(
     CORSMiddleware,
@@ -13,24 +14,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class TradeOrder(BaseModel):
-    symbol: str
-    side: str
-    price: float
-    quantity: float
-
-class Position(BaseModel):
-    id: str
-    symbol: str
-    side: str
-    price: float
-    quantity: float
+class Review(BaseModel):
+    id: str = None
+    title: str
     status: str
-    timestamp: str
+    score: float
+    timestamp: str = None
+    demo_payload: dict
 
-# In-memory seed data
-positions = [
-    {"id": "1", "symbol": "SOL/USDC", "side": "buy", "price": 145.20, "quantity": 10.0, "status": "open", "timestamp": "2023-10-27T10:00:00Z"}
+# In-memory storage
+db = [
+    {"id": "1", "title": "Initial Strategy", "status": "active", "score": 98.5, "timestamp": "2023-10-27T10:00:00Z", "demo_payload": {"volatility": 0.02}}
 ]
 
 @app.get("/api/health")
@@ -39,18 +33,15 @@ def health_check():
 
 @app.get("/api/analytics")
 def get_analytics():
-    return {"pnl": 1250.50, "win_rate": 0.65, "active_trades": len(positions)}
+    return {"total_trades": 150, "win_rate": 0.68, "data": db}
 
-@app.post("/api/trade/execute")
-def execute_trade(order: TradeOrder):
-    new_pos = {"id": str(len(positions) + 1), **order.dict(), "status": "filled", "timestamp": datetime.utcnow().isoformat()}
-    positions.append(new_pos)
-    return {"message": "Trade executed", "data": new_pos}
+@app.post("/api/reviews")
+def create_review(review: Review):
+    review.id = str(uuid.uuid4())
+    review.timestamp = datetime.utcnow().isoformat()
+    db.append(review.dict())
+    return review
 
-@app.get("/api/positions")
-def get_positions():
-    return {"positions": positions, "balance": 50000.00}
-
-@app.post("/api/config/update")
-def update_config(params: dict):
-    return {"message": "Configuration updated", "new_params": params}
+@app.get("/api/demo/stream")
+def get_demo_stream():
+    return {"stream": "active", "data": db[-1] if db else {}}

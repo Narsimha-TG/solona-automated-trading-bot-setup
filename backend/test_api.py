@@ -13,33 +13,24 @@ def test_get_analytics():
     response = client.get("/api/analytics")
     assert response.status_code == 200
     data = response.json()
-    assert "pnl" in data
-    assert "win_rate" in data
-    assert "active_trades" in data
+    assert "total_trades" in data
+    assert isinstance(data["data"], list)
 
-def test_execute_trade_success():
+def test_create_review():
     payload = {
-        "symbol": "SOL/USDC",
-        "side": "buy",
-        "price": 150.0,
-        "quantity": 5.0
+        "title": "Test Strategy",
+        "status": "pending",
+        "score": 95.0,
+        "demo_payload": {"volatility": 0.05}
     }
-    response = client.post("/api/trade/execute", json=payload)
+    response = client.post("/api/reviews", json=payload)
     assert response.status_code == 200
     data = response.json()
-    assert data["message"] == "Trade executed"
-    assert data["data"]["symbol"] == "SOL/USDC"
-    assert data["data"]["status"] == "filled"
+    assert data["title"] == "Test Strategy"
+    assert "id" in data
+    assert "timestamp" in data
 
-def test_get_positions():
-    response = client.get("/api/positions")
+def test_get_demo_stream():
+    response = client.get("/api/demo/stream")
     assert response.status_code == 200
-    assert "positions" in response.json()
-    assert "balance" in response.json()
-
-def test_update_config():
-    payload = {"max_slippage": 0.01, "leverage": 2}
-    response = client.post("/api/config/update", json=payload)
-    assert response.status_code == 200
-    assert response.json()["message"] == "Configuration updated"
-    assert response.json()["new_params"] == payload
+    assert "stream" in response.json()

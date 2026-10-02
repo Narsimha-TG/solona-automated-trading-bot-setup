@@ -5,26 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
-    <title>Solona Automated Trading Bot | Dashboard</title>
+    <title>Solona Trading Bot | Client Review Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = { darkMode: 'class' };
-    </script>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen font-sans">
+<body class="bg-slate-950 text-slate-200 min-h-screen font-sans">
     <div class="max-w-7xl mx-auto p-6">
-        <header class="mb-8 flex justify-between items-center">
+        <header class="mb-8 flex justify-between items-center border-b border-slate-800 pb-6">
             <div>
                 <h1 class="text-3xl font-bold text-white">Solona Trading Bot</h1>
                 <p class="text-sm text-slate-400">System Status: <span id="system-status" class="font-semibold text-emerald-400">Checking...</span></p>
             </div>
-            <div class="bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 text-xs font-mono">API: Active | Wallet: $12,450.22</div>
+            <div class="flex gap-4">
+                <div class="bg-slate-900 px-4 py-2 rounded-lg border border-slate-700 text-xs font-mono">API: Active</div>
+                <button onclick="sendDemoReview()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Send Demo Review</button>
+            </div>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="md:col-span-2 bg-slate-800 p-6 rounded-xl border border-slate-700">
-                <h2 class="text-lg font-semibold mb-4">Live Performance Metrics</h2>
-                <div id="chart-container" class="h-48 flex items-end p-4 gap-2">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 bg-slate-900 p-6 rounded-xl border border-slate-800">
+                <h2 class="text-lg font-semibold mb-4">Live Performance Analytics</h2>
+                <div id="chart-container" class="h-48 flex items-end p-4 gap-2 bg-slate-950 rounded-lg border border-slate-800">
                     <div class="w-full bg-emerald-500 h-1/2 animate-pulse"></div>
                     <div class="w-full bg-emerald-400 h-3/4 animate-pulse"></div>
                     <div class="w-full bg-emerald-600 h-2/3 animate-pulse"></div>
@@ -32,21 +32,21 @@
                 </div>
             </div>
 
-            <div class="bg-slate-800 p-6 rounded-xl border border-slate-700">
-                <h2 class="text-lg font-semibold mb-4">Control Panel</h2>
+            <div class="bg-slate-900 p-6 rounded-xl border border-slate-800">
+                <h2 class="text-lg font-semibold mb-4">Control Action Panel</h2>
                 <div class="space-y-3">
-                    <button onclick="executeTrade()" class="w-full bg-emerald-600 text-white py-2 rounded hover:bg-emerald-700 transition font-bold">Execute Market Buy</button>
-                    <button onclick="updateConfig()" class="w-full bg-slate-700 text-white py-2 rounded hover:bg-slate-600 transition">Update Risk Limits</button>
+                    <button onclick="executeAction('BUY')" class="w-full bg-emerald-600 text-white py-2 rounded hover:bg-emerald-700 transition font-bold">Execute Market Buy</button>
+                    <button onclick="executeAction('SELL')" class="w-full bg-rose-600 text-white py-2 rounded hover:bg-rose-700 transition font-bold">Execute Market Sell</button>
                 </div>
             </div>
         </div>
 
-        <div class="mt-8 bg-slate-800 p-6 rounded-xl border border-slate-700">
-            <h2 class="text-lg font-semibold mb-4">Execution Log</h2>
-            <ul id="log-list" class="space-y-3 text-sm font-mono text-slate-300">
-                <li class="border-l-4 border-emerald-500 pl-3">[10:42:01] System initialized via TypeScript Engine.</li>
-                <li class="border-l-4 border-blue-500 pl-3">[10:42:05] WebSocket connection established.</li>
-                <li class="border-l-4 border-yellow-500 pl-3">[10:42:10] Strategy parameters loaded successfully.</li>
+        <div class="mt-8 bg-slate-900 p-6 rounded-xl border border-slate-800">
+            <h2 class="text-lg font-semibold mb-4">Agent Decision Log</h2>
+            <ul id="log-list" class="space-y-3 text-sm font-mono text-slate-400">
+                <li class="border-l-4 border-emerald-500 pl-3">[10:42:01] TypeScript Engine initialized.</li>
+                <li class="border-l-4 border-blue-500 pl-3">[10:42:05] WebSocket stream connected.</li>
+                <li class="border-l-4 border-yellow-500 pl-3">[10:42:10] Strategy parameters loaded.</li>
                 <li class="border-l-4 border-purple-500 pl-3">[10:42:15] Wallet balance synced: 12.45 SOL.</li>
             </ul>
         </div>
@@ -63,11 +63,21 @@
             }
         }
 
-        async function executeTrade() {
+        async function sendDemoReview() {
+            const payload = { id: Date.now(), status: 'review_requested', timestamp: new Date().toISOString() };
+            try {
+                await fetch('/api/reviews', { method: 'POST', body: JSON.stringify(payload) });
+                alert('Demo review sent to client.');
+            } catch (e) {
+                console.log('Demo mode: Review payload simulated.');
+            }
+        }
+
+        function executeAction(type) {
             const log = document.getElementById('log-list');
             const entry = document.createElement('li');
             entry.className = 'border-l-4 border-emerald-400 pl-3';
-            entry.innerText = `[${new Date().toLocaleTimeString()}] Manual trade execution triggered.`;
+            entry.innerText = `[${new Date().toLocaleTimeString()}] Manual action triggered: ${type}`;
             log.prepend(entry);
         }
 
